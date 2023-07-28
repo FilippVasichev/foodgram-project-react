@@ -1,6 +1,7 @@
 from django.contrib import admin
-from .models import User
+from .models import User, Follow
 
+@admin.register(User)
 class UserAdmin(admin.ModelAdmin):
     list_display = (
         'username',
@@ -9,8 +10,18 @@ class UserAdmin(admin.ModelAdmin):
         'email',
         'is_staff',
     )
-    search_fields = ('username',)
+    search_fields = (
+        'username',
+        'email',
+    )
     empty_value_display = '-пусто-'
 
 
-admin.site.register(User, UserAdmin)
+@admin.register(Follow)
+class FollowAdmin(admin.ModelAdmin):
+    list_display = (
+        'user',
+        'author',
+    )
+    search_fields = ('user',)
+    # list_editable = ('user', 'author')
