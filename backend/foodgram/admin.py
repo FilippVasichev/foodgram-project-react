@@ -5,11 +5,11 @@ from .models import ShoppingCart, FavoriteRecipe
 @admin.register(ShoppingCart)
 class ShoppingCartAdmin(admin.ModelAdmin):
     list_display = (
-        'cart_owner',
-        'products',
+        'user',
+        'recipe',
     )
-    search_fields = ('cart_owner',)
-    list_editable = ('products',)
+    search_fields = ('user',)
+    list_editable = ('recipe',)
     empty_value_display = '-пусто-'
 
 
@@ -17,8 +17,8 @@ class ShoppingCartAdmin(admin.ModelAdmin):
 class FavoriteRecipeAdmin(admin.ModelAdmin):
     list_display = (
         'user',
-        'favorite_recipe',
+        'recipe',
     )
     search_fields = ('user',)
-    list_editable = ('favorite_recipe',)
+    list_editable = ('recipe',)
     empty_value_display = '-пусто-'

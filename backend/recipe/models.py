@@ -25,6 +25,7 @@ class Ingredient(models.Model):
         max_length=50,
         blank=False,
         null=False,
+        db_index=True,
     )
     measurement_unit = models.CharField(
         verbose_name='Единицы измерения',
@@ -48,23 +49,23 @@ class Recipe(models.Model):
         on_delete=models.CASCADE,
         blank=False,
         null=False,
-        related_name='recipe'
+        related_name='author'
     )
     name = models.CharField(
         max_length=25,
     )
-    tag = models.ForeignKey(
+    tags = models.ManyToManyField(
         Tag,
-        verbose_name='Тэг',
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=False,
-        related_name='tag'
+        verbose_name='Тэги',
+        related_name='recipe_tags',
+        through='RecipeTag',
     )
     ingredients = models.ManyToManyField(
         Ingredient,
+        verbose_name='Ингридиенты',
         related_name='ingredient',
         through='IngredientQuantity',
+        through_fields=('recipe', 'ingredient')
     )
     text = models.TextField(
         verbose_name='Текст',
@@ -74,6 +75,8 @@ class Recipe(models.Model):
         verbose_name='Картинка',
         upload_to='food_images/',
         blank=True,
+        null=True,
+        default=None,
     )
     cooking_time = models.PositiveSmallIntegerField(
         verbose_name='Время приготовления',
@@ -97,12 +100,40 @@ class IngredientQuantity(models.Model):
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
+        null=False,
+        blank=False,
+        related_name='recipe_ingredient'
     )
     ingredient = models.ForeignKey(
         Ingredient,
         on_delete=models.CASCADE,
+        null=False,
+        blank=False,
+        related_name='ingredient_recipe'
     )
-    quantity = models.PositiveSmallIntegerField()
+    amount = models.PositiveSmallIntegerField(
+        null=False,
+        blank=False,
+    )
 
     def __str__(self):
-        return f'{self.ingredient.name} - {self.quantity}'
+        return self.ingredient.name
+
+
+class RecipeTag(models.Model):
+    recipe = models.ForeignKey(
+        Recipe,
+        on_delete=models.CASCADE,
+        null=False,
+        blank=False,
+    )
+    tag = models.ForeignKey(
+        Tag,
+        on_delete=models.CASCADE,
+        null=False,
+        blank=False,
+        related_name='tag'
+    )
+
+    def __str__(self):
+        return self.tag.name

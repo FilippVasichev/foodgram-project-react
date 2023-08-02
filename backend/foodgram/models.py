@@ -2,53 +2,41 @@ from django.db import models
 from users.models import User
 from recipe.models import Recipe
 
-class ShoppingCart(models.Model):
-    cart_owner = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        blank=False,
-        null=False,
-    )
-    products = models.ForeignKey(
-        Recipe,
-        on_delete=models.CASCADE,
-        verbose_name='Продукты',
-        related_name='products',
-        blank=False,
-        null=False,
-    )
 
-    class Meta:
-        verbose_name = 'Продуктовая корзина'
-        verbose_name_plural = 'Продуктовые корзины'
-
-    def __str__(self):
-        return self.products.name
-
-
-class FavoriteRecipe(models.Model):
+class AbstractUsersRecipe(models.Model):
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        blank=False,
-        null=False,
+        verbose_name='Пользователь',
     )
-    favorite_recipe = models.ForeignKey(
+    recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
-        blank=False,
-        null=False,
+        verbose_name='Рецепт',
     )
 
     class Meta:
-        verbose_name = 'Избранный рецепт'
-        verbose_name_plural = 'Избранные рецепты'
-
+        abstract = True
         constraints = [
             models.UniqueConstraint(
-                fields=['user', 'favorite_recipe'], name='unique_fav_recipe'),
-            models.CheckConstraint(
-                name='foodgram_prevent_multi_fav_recipe',
-                check=~models.Q(user=models.F('favorite_recipe')),
+                fields=('user', 'recipe'),
+                name='%(class)s_unique_constraint',
             )
         ]
+
+    def str(self):
+        return f'{self.user} - {self.recipe}'
+
+
+class FavoriteRecipe(AbstractUsersRecipe):
+    class Meta(AbstractUsersRecipe.Meta):
+        default_related_name = 'favorites'
+        verbose_name = 'Избранное'
+        verbose_name_plural = 'Избранное'
+
+
+class ShoppingCart(AbstractUsersRecipe):
+    class Meta(AbstractUsersRecipe.Meta):
+        default_related_name = 'shopping_cart'
+        verbose_name = 'Корзина'
+        verbose_name_plural = 'Корзина'
