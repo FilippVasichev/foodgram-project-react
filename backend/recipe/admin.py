@@ -22,6 +22,7 @@ class IngredientAdmin(admin.ModelAdmin):
     empty_value_display = '-пусто-'
 
 
+
 class IngredientInline(admin.TabularInline):
     model = IngredientQuantity
     extra = 1

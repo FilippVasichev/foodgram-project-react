@@ -49,7 +49,7 @@ class Recipe(models.Model):
         on_delete=models.CASCADE,
         blank=False,
         null=False,
-        related_name='author'
+        related_name='recipe'
     )
     name = models.CharField(
         max_length=25,
@@ -65,7 +65,7 @@ class Recipe(models.Model):
         verbose_name='Ингридиенты',
         related_name='ingredient',
         through='IngredientQuantity',
-        through_fields=('recipe', 'ingredient')
+        through_fields=('recipe', 'ingredient'),
     )
     text = models.TextField(
         verbose_name='Текст',
@@ -102,7 +102,7 @@ class IngredientQuantity(models.Model):
         on_delete=models.CASCADE,
         null=False,
         blank=False,
-        related_name='recipe_ingredient'
+        related_name='recipe_ingredient',
     )
     ingredient = models.ForeignKey(
         Ingredient,
