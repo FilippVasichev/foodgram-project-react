@@ -3,7 +3,7 @@ import csv
 from recipe.models import Ingredient, Tag
 from users.models import User
 
-from api_foodgram import settings
+from django.conf import settings
 from django.core.management.base import BaseCommand
 
 CSV_FILES = {
@@ -30,17 +30,26 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-        for file, model in CSV_FILES.items():
-            with open(CONTENT_DIR / f'{file}.csv', newline='') as f:
-                reader = csv.DictReader(f)
-                if options["delete_existing"]:
-                    model.objects.all().delete()
-                self.stdout.write(self.style.SUCCESS(
-                    f'Удалены старые записи {file.capitalize()}.'))
-                for row in reader:
-                    model.objects.create(**row)
-                self.stdout.write(self.style.SUCCESS(
-                    f'Записи {file.capitalize()} созданы.'))
+        try:
+            for file, model in CSV_FILES.items():
+                with open(
+                        CONTENT_DIR / f'{file}.csv',
+                        encoding='utf-8',
+                        newline=''
+                ) as f:
+                    reader = csv.DictReader(f)
+                    if options["delete_existing"]:
+                        model.objects.all().delete()
+                    self.stdout.write(self.style.SUCCESS(
+                        f'Удалены старые записи {file.capitalize()}.'))
+                    for row in reader:
+                        model.objects.create(**row)
+                        self.stdout.write(self.style.SUCCESS(
+                            f'Записи {file.capitalize()} созданы.'))
+        except Exception as err:
+            print('Произошла ошибка:', err)
+
+
 
         self.stdout.write(self.style.SUCCESS(
             'Поздравляем! Ваша БД наполнена!. '))

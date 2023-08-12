@@ -1,5 +1,8 @@
+from pprint import pprint
+
 from django.db.utils import IntegrityError
 from django.shortcuts import get_object_or_404
+from django.http import HttpResponse
 from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet
 from rest_framework import status
@@ -45,15 +48,12 @@ class DjoserCustomUserViewSet(UserViewSet):
                 return Response(
                     {'errors': 'Вы уже подписаны на этого автора.'},
                     status=status.HTTP_400_BAD_REQUEST)
-
-        if request.method == 'DELETE':
-            subscribe = get_object_or_404(
-                Follow,
-                user=request.user,
-                author_id=id
-            )
-            self.perform_destroy(subscribe)
-            return Response(status=status.HTTP_204_NO_CONTENT)
+        get_object_or_404(
+            Follow,
+            user=request.user,
+            author_id=id
+        ).delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(methods=['GET'], detail=False)
     def subscriptions(self, request):
@@ -132,15 +132,6 @@ class RecipeViewSet(ModelViewSet):
 
 @api_view(['DELETE', 'POST'])
 def favoriterecipeview(request, id=None):
-    if request.method == 'DELETE':
-        favorite = get_object_or_404(
-            FavoriteRecipe,
-            recipe_id=id,
-            user=request.user
-        )
-        favorite.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
-
     if request.method == 'POST':
         serializer = FavoriteSerializer(
             data=request.data,
@@ -153,14 +144,15 @@ def favoriterecipeview(request, id=None):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    get_object_or_404(
+        FavoriteRecipe,
+        recipe_id=id,
+        user=request.user,
+    ).delete()
+    return Response(status=status.HTTP_204_NO_CONTENT)
 
 @api_view(['DELETE', 'POST'])
 def shoppingcartview(request, id=None):
-    if request.method == 'DELETE':
-        cart = get_object_or_404(ShoppingCart, recipe_id=id)
-        cart.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
-
     if request.method == 'POST':
         serializer = ShoppingCartSerializer(
             data=request.data,
@@ -173,18 +165,34 @@ def shoppingcartview(request, id=None):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    get_object_or_404(
+        ShoppingCart,
+        recipe_id=id,
+        user=request.user,
+    ).delete()
+    return Response(status=status.HTTP_204_NO_CONTENT)
 
-# @api_view(['GET'])
-# def download_shopping_cart(request):
-#     user = request.user
-#     shopping_list = user.shopping_cart.all()
-#     ingredients = {}
-#
-#     for item in shopping_list:
-#         print(item, '1')
-#         ingredient = item.recipe.recipe_ingredient.all()
-#         for ingredients_names in ingredient:
-#             print(ingredients_names.amount, 'amount')
-#         # amount = item.recipe.recipe_ingredient.amount
-#         # # print(amount, '3')
-#         return Response({"data": 'zalupa'})
+@api_view(['GET'])
+def download_shopping_cart(request):
+    user = request.user
+    shopping_list = user.shopping_cart.all()
+    ingredients_list = {}
+    for item in shopping_list:
+        ingredients = item.recipe.recipe_ingredient.all()
+        for ingredient_quantity in ingredients:
+            ingredient = ingredient_quantity.ingredient
+            amount = ingredient_quantity.amount
+            if ingredient in ingredients_list:
+                ingredients_list[ingredient] += amount
+            else:
+                ingredients_list[ingredient] = amount
+    pprint(ingredients_list)
+
+    response = HttpResponse(content_type='text/plain')
+    response['Content-Disposition'] = (
+        f'attachment; filename="{user.username}_shopping_list.txt"'
+    )
+    for ingredient, amount in ingredients_list.items():
+        line = f"{ingredient}: {amount}\n"
+        response.write(line)
+    return response

@@ -39,19 +39,19 @@ class CustomUserCreateSerializer(UserCreateSerializer):
             'password',
         )
 
-    def validate_email(self, value):
-        if User.objects.filter(email=value).exists():
-            raise serializers.ValidationError("Этот email уже занят.")
-        return value
+    def validate_email(self, email):
+        if User.objects.filter(email=email).exists():
+            raise serializers.ValidationError('Этот email уже занят.')
+        return email
 
-    def validate_username(self, value):
-        if User.objects.filter(username=value).exists():
-            raise serializers.ValidationError("Этот username уже занят.")
-        return value
+    def validate_username(self, username):
+        if User.objects.filter(username=username).exists():
+            raise serializers.ValidationError('Этот username уже занят.')
+        return username
 
 
 class CustomUserSerializer(UserSerializer):
-    is_subscribed = serializers.SerializerMethodField(read_only=True)
+    is_subscribed = serializers.SerializerMethodField()
 
     class Meta(UserSerializer.Meta):
         fields = (
@@ -62,6 +62,7 @@ class CustomUserSerializer(UserSerializer):
             'last_name',
             'is_subscribed'
         )
+        read_only_fields = ('is_subscribed',)
 
     def get_is_subscribed(self, author):
         user = self.context.get('request').user
@@ -96,7 +97,9 @@ class TagSerializer(serializers.ModelSerializer):
 class IngredientAmountSerializer(serializers.ModelSerializer):
     id = serializers.ReadOnlyField(source='ingredient.id')
     name = serializers.ReadOnlyField(source='ingredient.name')
-    measurement_unit = serializers.ReadOnlyField(source='ingredient.measurement_unit')
+    measurement_unit = serializers.ReadOnlyField(
+        source='ingredient.measurement_unit',
+    )
 
     class Meta:
         model = IngredientQuantity
@@ -109,19 +112,26 @@ class IngredientAmountSerializer(serializers.ModelSerializer):
 
 
 class RecipeSerializer(serializers.ModelSerializer):
-    is_favorited = serializers.SerializerMethodField(read_only=True)
-    is_in_shopping_cart = serializers.SerializerMethodField(read_only=True)
-    author = CustomUserSerializer(read_only=True)
+    is_favorited = serializers.SerializerMethodField()
+    is_in_shopping_cart = serializers.SerializerMethodField()
+    author = CustomUserSerializer()
     ingredients = IngredientAmountSerializer(
         many=True,
         source='recipe_ingredient'
     )
-    tags = TagSerializer(many=True, read_only=True)
-    image = serializers.SerializerMethodField(read_only=True)
-    name = serializers.ReadOnlyField(read_only=True)
-    cooking_time = serializers.ReadOnlyField(read_only=True)
+    tags = TagSerializer(many=True)
+    image = serializers.SerializerMethodField()
+    name = serializers.ReadOnlyField()
+    cooking_time = serializers.ReadOnlyField()
     class Meta:
         model = Recipe
+        read_only_fields = (
+            'is_favorited',
+            'is_in_shopping_cart',
+            'author',
+            'tags',
+            'image',
+        )
         fields = (
             'id',
             'tags',
@@ -136,9 +146,9 @@ class RecipeSerializer(serializers.ModelSerializer):
         )
 
     def get_image(self, recipe):
-        image_name = recipe.image.name if recipe.image else None
-        if image_name:
-            return self.context['request'].build_absolute_uri(image_name)
+        if recipe.image:
+            request = self.context.get('request')
+            return request.build_absolute_uri(recipe.image.url)
         return None
 
     def get_is_favorited(self, recipe):
@@ -221,8 +231,8 @@ class CreateUpdateRecipeSerializer(serializers.ModelSerializer):
         return recipe
 
     def update(self, recipe, validated_data):
-        ingredients_data = validated_data.pop('ingredients')
-        tags_data = validated_data.pop('tags')
+        ingredients_data = validated_data.pop('ingredients', [])
+        tags_data = validated_data.pop('tags', [])
         if tags_data:
             recipe.tags.set(tags_data)
         if ingredients_data:

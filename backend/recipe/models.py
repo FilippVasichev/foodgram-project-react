@@ -73,7 +73,7 @@ class Recipe(models.Model):
     )
     image = models.ImageField(
         verbose_name='Картинка',
-        upload_to='food_images/',
+        upload_to='recipes/images/',
         blank=True,
         null=True,
         default=None,
@@ -89,6 +89,7 @@ class Recipe(models.Model):
     )
 
     class Meta:
+        ordering = ['-pub_date']
         verbose_name = 'Рецепт'
         verbose_name_plural = 'Рецепты'
 
