@@ -19,16 +19,24 @@ router_v1.register(r'tags', TagViewSet, basename='tags')
 router_v1.register(r'recipes', RecipeViewSet, basename='recipes')
 router_v1.register(r'users', DjoserCustomUserViewSet, basename='users')
 
+recipe_prefix = 'recipes/'
+
 urlpatterns = [
-    path(r'recipes/<int:id>/favorite/', favoriterecipeview),
-    path(r'recipes/<int:id>/shopping_cart/', shoppingcartview),
-    path(r'users/<int:id>/subscribe/',DjoserCustomUserViewSet.as_view(
-        {'post': 'subscribe','delete': 'subscribe',}
-    )),
-    path(r'recipes/download_shopping_cart/', download_shopping_cart),
+    path(f'{recipe_prefix}<int:id>/favorite/', favoriterecipeview),
+    path(f'{recipe_prefix}<int:id>/shopping_cart/', shoppingcartview),
+    path(f'{recipe_prefix}download_shopping_cart/', download_shopping_cart),
+    path(
+        'users/<int:id>/subscribe/',
+        DjoserCustomUserViewSet.as_view(
+            {
+                'post': 'subscribe',
+                'delete': 'subscribe',
+            }
+        ),
+    ),
+    path('auth/', include('djoser.urls.authtoken')),
     path('', include(router_v1.urls)),
     path('', include('djoser.urls')),
-    path('auth/', include('djoser.urls.authtoken')),
 ]
 
 if settings.DEBUG:

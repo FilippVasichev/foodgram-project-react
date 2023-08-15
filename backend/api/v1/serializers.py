@@ -114,13 +114,13 @@ class IngredientAmountSerializer(serializers.ModelSerializer):
 class RecipeSerializer(serializers.ModelSerializer):
     is_favorited = serializers.SerializerMethodField()
     is_in_shopping_cart = serializers.SerializerMethodField()
+    image = serializers.SerializerMethodField()
     author = CustomUserSerializer()
     ingredients = IngredientAmountSerializer(
         many=True,
         source='recipe_ingredient'
     )
     tags = TagSerializer(many=True)
-    image = serializers.SerializerMethodField()
     name = serializers.ReadOnlyField()
     cooking_time = serializers.ReadOnlyField()
     class Meta:
