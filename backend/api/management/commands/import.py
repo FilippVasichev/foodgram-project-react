@@ -48,8 +48,5 @@ class Command(BaseCommand):
                             f'Записи {file.capitalize()} созданы.'))
         except Exception as err:
             print('Произошла ошибка:', err)
-
-
-
         self.stdout.write(self.style.SUCCESS(
             'Поздравляем! Ваша БД наполнена!. '))

@@ -148,8 +148,9 @@ dmypy.json
 # папки со статикой и медиа
 media/
 frontend/
+infra/
+docs/
 migrations/
-
-
+static/
 
 

@@ -1,4 +1,10 @@
-from django.contrib.admin import TabularInline, ModelAdmin, register, display, site
+from django.contrib.admin import (
+    TabularInline,
+    ModelAdmin,
+    register,
+    display,
+    site
+)
 from django.contrib.auth.models import Group
 
 from .models import Tag, Ingredient, Recipe
@@ -30,7 +36,6 @@ class IngredientInline(TabularInline):
     min_num = 3
 
 
-
 class TagInLine(TabularInline):
     model = Recipe.tags.through
     extra = 1
@@ -58,5 +63,6 @@ class RecipeAdmin(ModelAdmin):
     )
     def favorite_count(self, recipe):
         return recipe.favorites.count()
+
 
 site.unregister(Group)

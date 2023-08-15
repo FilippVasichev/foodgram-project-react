@@ -19,9 +19,16 @@ from users.models import User
 from .filters import RecipeFilterSet
 from .paginators import CustomPageNumberPaginator
 from .permissions import AuthorOr403
-from .serializers import IngredientSerializer, TagSerializer, RecipeSerializer, \
-    CreateUpdateRecipeSerializer, FavoriteSerializer, CustomUserSerializer, \
-    UserSubscriptionSerializer, ShoppingCartSerializer
+from .serializers import (
+    IngredientSerializer,
+    TagSerializer,
+    RecipeSerializer,
+    CreateUpdateRecipeSerializer,
+    FavoriteSerializer,
+    CustomUserSerializer,
+    UserSubscriptionSerializer,
+    ShoppingCartSerializer,
+)
 
 
 class DjoserCustomUserViewSet(UserViewSet):
@@ -41,7 +48,10 @@ class DjoserCustomUserViewSet(UserViewSet):
                     ),
                     context={'request': request},
                 )
-                return Response(serializer.data, status=status.HTTP_201_CREATED)
+                return Response(
+                    serializer.data,
+                    status=status.HTTP_201_CREATED
+                )
             except IntegrityError:
                 return Response(
                     {'errors': 'Вы уже подписаны на этого автора.'},
@@ -149,6 +159,7 @@ def favoriterecipeview(request, id=None):
     ).delete()
     return Response(status=status.HTTP_204_NO_CONTENT)
 
+
 @api_view(['DELETE', 'POST'])
 def shoppingcartview(request, id=None):
     if request.method == 'POST':
@@ -169,6 +180,7 @@ def shoppingcartview(request, id=None):
         user=request.user,
     ).delete()
     return Response(status=status.HTTP_204_NO_CONTENT)
+
 
 @api_view(['GET'])
 def download_shopping_cart(request):

@@ -21,7 +21,6 @@ router_v1.register(r'tags', TagViewSet, basename='tags')
 router_v1.register(r'recipes', RecipeViewSet, basename='recipes')
 router_v1.register(r'users', DjoserCustomUserViewSet, basename='users')
 
-
 urlpatterns = [
     path(f'{recipe_prefix}<int:id>/favorite/', favoriterecipeview),
     path(f'{recipe_prefix}<int:id>/shopping_cart/', shoppingcartview),
@@ -41,4 +40,7 @@ urlpatterns = [
 ]
 
 if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    urlpatterns += static(
+        settings.MEDIA_URL,
+        document_root=settings.MEDIA_ROOT
+    )

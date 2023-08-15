@@ -6,7 +6,13 @@ from djoser.serializers import UserCreateSerializer, UserSerializer
 from rest_framework import serializers
 
 from foodgram.models import FavoriteRecipe, ShoppingCart
-from recipe.models import Ingredient, Tag, Recipe, IngredientQuantity, RecipeTag
+from recipe.models import (
+    Ingredient,
+    Tag,
+    Recipe,
+    IngredientQuantity,
+    RecipeTag,
+)
 from users.models import User, Follow
 
 
