@@ -19,7 +19,7 @@ from users.models import User, Follow
 class CustomUserCreateSerializer(UserCreateSerializer):
     """
     Сериализатор для создания пользователей.
-    Валидирует email и username на уникальность в системе.
+    Валидирует email и username на уникальность.
     """
     email = serializers.EmailField(
         max_length=settings.EMAIL_FIELD_MAX_LENGTH,
