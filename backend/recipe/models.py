@@ -1,4 +1,5 @@
 from django.db import models
+from django.core.validators import MinValueValidator
 from users.models import User
 
 
@@ -52,7 +53,7 @@ class Recipe(models.Model):
         related_name='recipe'
     )
     name = models.CharField(
-        max_length=25,
+        max_length=200,
     )
     tags = models.ManyToManyField(
         Tag,
@@ -82,6 +83,7 @@ class Recipe(models.Model):
         verbose_name='Время приготовления',
         null=False,
         blank=False,
+        validators=[MinValueValidator(1)]
     )
     pub_date = models.DateTimeField(
         verbose_name='Дата публикации',

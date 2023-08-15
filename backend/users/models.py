@@ -1,4 +1,5 @@
 from django.contrib.auth.models import AbstractUser
+from django.conf import settings
 from django.db import models
 
 
@@ -6,7 +7,7 @@ class User(AbstractUser):
     email = models.EmailField(
         'email address',
         blank=True,
-        max_length=254,
+        max_length=settings.EMAIL_FIELD_MAX_LENGTH,
     )
 
     class Meta:
