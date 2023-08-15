@@ -127,3 +127,6 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = ((BASE_DIR / 'static/'),)
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+MAX_FIELD_LENGTH = 150
+EMAIL_FIELD_MAX_LENGTH = 254

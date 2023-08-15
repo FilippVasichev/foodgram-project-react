@@ -1,23 +1,21 @@
 from pprint import pprint
 
 from django.db.utils import IntegrityError
-from django.shortcuts import get_object_or_404
 from django.http import HttpResponse
+from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet
 from rest_framework import status
-from rest_framework.decorators import api_view, action, permission_classes
-from rest_framework.permissions import AllowAny, IsAuthenticated, \
-    IsAuthenticatedOrReadOnly, IsAdminUser
+from rest_framework.decorators import api_view, action
+from rest_framework.filters import SearchFilter
+from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
-from rest_framework.filters import SearchFilter
 
 from foodgram.models import FavoriteRecipe, ShoppingCart
 from recipe.models import Ingredient, Tag, Recipe
 from users.models import Follow
 from users.models import User
-
 from .filters import RecipeFilterSet
 from .paginators import CustomPageNumberPaginator
 from .permissions import AuthorOr403

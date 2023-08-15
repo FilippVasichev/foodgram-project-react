@@ -1,8 +1,14 @@
 from django.contrib import admin
+from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from .models import User, Follow
 
+
+class AdminUser(BaseUserAdmin):
+    change_password_template = "admin/auth/user/change_password.html"
+
+
 @admin.register(User)
-class UserAdmin(admin.ModelAdmin):
+class UserAdmin(AdminUser):
     list_display = (
         'username',
         'first_name',
@@ -13,6 +19,7 @@ class UserAdmin(admin.ModelAdmin):
     list_filter = (
         'email',
         'username',
+        'is_staff',
     )
     empty_value_display = '-пусто-'
 
@@ -23,5 +30,4 @@ class FollowAdmin(admin.ModelAdmin):
         'user',
         'author',
     )
-    search_fields = ('user',)
-    # list_editable = ('user', 'author')
+    search_fields = ('user__username', 'author__username')

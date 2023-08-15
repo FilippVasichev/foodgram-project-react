@@ -2,8 +2,9 @@ from rest_framework.permissions import BasePermission, SAFE_METHODS
 
 class AuthorOr403(BasePermission):
     """
-    Пермишн для ограничения прав на PATCH
-    и DELETE обьектов рецепта.
+    Пермишн ограничивающий права для http
+    методов "PATCH" и "DELETE" при работе
+    с обьектами рецепта
     """
 
     def has_permission(self, request, view):

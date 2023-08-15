@@ -7,11 +7,13 @@ from api.v1.views import (
     IngredientViewSet,
     TagViewSet,
     RecipeViewSet,
-    favoriterecipeview,
-    shoppingcartview,
     DjoserCustomUserViewSet,
+    shoppingcartview,
+    favoriterecipeview,
     download_shopping_cart,
 )
+
+recipe_prefix = 'recipes/'
 
 router_v1 = DefaultRouter()
 router_v1.register(r'ingredients', IngredientViewSet, basename='ingredients')
@@ -19,7 +21,6 @@ router_v1.register(r'tags', TagViewSet, basename='tags')
 router_v1.register(r'recipes', RecipeViewSet, basename='recipes')
 router_v1.register(r'users', DjoserCustomUserViewSet, basename='users')
 
-recipe_prefix = 'recipes/'
 
 urlpatterns = [
     path(f'{recipe_prefix}<int:id>/favorite/', favoriterecipeview),
