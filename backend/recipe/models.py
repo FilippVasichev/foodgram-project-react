@@ -1,15 +1,16 @@
 from django.db import models
 from django.core.validators import MinValueValidator
+from colorfield.fields import ColorField
+
+from foodgram import constants
 from users.models import User
 
 
 class Tag(models.Model):
     name = models.CharField(
-        max_length=200,
+        max_length=constants.NAME_FIELD_MAX_LENGTH,
     )
-    color = models.CharField(
-        max_length=16,
-    )
+    color = ColorField()
     slug = models.SlugField(unique=True)
 
     class Meta:
@@ -23,21 +24,25 @@ class Tag(models.Model):
 class Ingredient(models.Model):
     name = models.CharField(
         verbose_name='Название ингредиента',
-        max_length=50,
-        blank=False,
+        max_length=constants.NAME_FIELD_MAX_LENGTH,
         null=False,
         db_index=True,
     )
     measurement_unit = models.CharField(
         verbose_name='Единицы измерения',
-        max_length=10,
-        blank=False,
+        max_length=constants.NAME_FIELD_MAX_LENGTH,
         null=False,
     )
 
     class Meta:
         verbose_name = 'Ингредиент'
         verbose_name_plural = 'Ингредиенты'
+        constraints = [
+            models.UniqueConstraint(
+                fields=('name', 'measurement_unit'),
+                name='ingredients_unique_constraint',
+            )
+        ]
 
     def __str__(self):
         return self.name
@@ -53,7 +58,7 @@ class Recipe(models.Model):
         related_name='recipe'
     )
     name = models.CharField(
-        max_length=200,
+        max_length=constants.NAME_FIELD_MAX_LENGTH,
     )
     tags = models.ManyToManyField(
         Tag,
@@ -70,7 +75,6 @@ class Recipe(models.Model):
     )
     text = models.TextField(
         verbose_name='Текст',
-        max_length=500,
     )
     image = models.ImageField(
         verbose_name='Картинка',
@@ -83,7 +87,7 @@ class Recipe(models.Model):
         verbose_name='Время приготовления',
         null=False,
         blank=False,
-        validators=[MinValueValidator(1)]
+        validators=[MinValueValidator(1)] ### Остановился здесь, добавить максимальный валидатор
     )
     pub_date = models.DateTimeField(
         verbose_name='Дата публикации',
@@ -140,3 +144,42 @@ class RecipeTag(models.Model):
 
     def __str__(self):
         return self.tag.name
+
+
+class AbstractUsersRecipe(models.Model):
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        verbose_name='Пользователь',
+    )
+    recipe = models.ForeignKey(
+        Recipe,
+        on_delete=models.CASCADE,
+        verbose_name='Рецепт',
+    )
+
+    class Meta:
+        abstract = True
+        constraints = [
+            models.UniqueConstraint(
+                fields=('user', 'recipe'),
+                name='%(class)s_unique_constraint',
+            )
+        ]
+
+    def str(self):
+        return f'{self.user} - {self.recipe}'
+
+
+class FavoriteRecipe(AbstractUsersRecipe):
+    class Meta(AbstractUsersRecipe.Meta):
+        default_related_name = 'favorites'
+        verbose_name = 'Избранное'
+        verbose_name_plural = 'Избранное'
+
+
+class ShoppingCart(AbstractUsersRecipe):
+    class Meta(AbstractUsersRecipe.Meta):
+        default_related_name = 'shopping_cart'
+        verbose_name = 'Корзина'
+        verbose_name_plural = 'Корзина'

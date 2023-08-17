@@ -1,17 +1,18 @@
 import base64
 
-from django.conf import settings
 from django.core.files.base import ContentFile
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from rest_framework import serializers
 
-from foodgram.models import FavoriteRecipe, ShoppingCart
+from foodgram import constants
 from recipe.models import (
     Ingredient,
     Tag,
     Recipe,
     IngredientQuantity,
     RecipeTag,
+    FavoriteRecipe,
+    ShoppingCart,
 )
 from users.models import User, Follow
 
@@ -22,20 +23,20 @@ class CustomUserCreateSerializer(UserCreateSerializer):
     Валидирует email и username на уникальность.
     """
     email = serializers.EmailField(
-        max_length=settings.EMAIL_FIELD_MAX_LENGTH,
+        max_length=constants.EMAIL_FIELD_MAX_LENGTH,
         required=True
     )
     username = serializers.RegexField(
         regex=r'^[\w.@+-]+$',
-        max_length=settings.MAX_FIELD_LENGTH,
+        max_length=constants.MAX_FIELD_LENGTH,
         required=True
     )
     first_name = serializers.CharField(
-        max_length=settings.MAX_FIELD_LENGTH,
+        max_length=constants.MAX_FIELD_LENGTH,
         required=True,
     )
     last_name = serializers.CharField(
-        max_length=settings.MAX_FIELD_LENGTH,
+        max_length=constants.MAX_FIELD_LENGTH,
         required=True,
     )
 

@@ -5,9 +5,10 @@ from django.contrib.admin import (
     display,
     site
 )
+from django.utils.safestring import mark_safe
 from django.contrib.auth.models import Group
 
-from .models import Tag, Ingredient, Recipe
+from .models import Tag, Ingredient, Recipe, ShoppingCart, FavoriteRecipe
 
 
 @register(Tag)
@@ -33,7 +34,7 @@ class IngredientAdmin(ModelAdmin):
 class IngredientInline(TabularInline):
     model = Recipe.ingredients.through
     extra = 1
-    min_num = 3
+    min_num = 1
 
 
 class TagInLine(TabularInline):
@@ -47,7 +48,10 @@ class RecipeAdmin(ModelAdmin):
     list_display = (
         'author',
         'name',
+        'recipe_image',
         'favorite_count',
+        'recipe_ingredients',
+        'recipe_tags',
     )
     list_filter = (
         'name',
@@ -63,6 +67,52 @@ class RecipeAdmin(ModelAdmin):
     )
     def favorite_count(self, recipe):
         return recipe.favorites.count()
+
+    @display(
+        description='Ингридиенты',
+        empty_value='-пусто-',
+    )
+    def recipe_ingredients(self, recipe):
+        return list(recipe.ingredients.all())
+
+    @display(
+        description='Тэги',
+        empty_value='-пусто-',
+    )
+    def recipe_tags(self, recipe):
+        return list(recipe.tags.all())
+
+    @display(
+        description='Картинка',
+        empty_value='-пусто-',
+    )
+    def recipe_image(self, recipe):
+        if recipe.image:
+            return mark_safe(
+                f'<img src={recipe.image.url} width="80" height="60">'
+            )
+
+
+@register(ShoppingCart)
+class ShoppingCartAdmin(ModelAdmin):
+    list_display = (
+        'user',
+        'recipe',
+    )
+    search_fields = ('user',)
+    list_editable = ('recipe',)
+    empty_value_display = '-пусто-'
+
+
+@register(FavoriteRecipe)
+class FavoriteRecipeAdmin(ModelAdmin):
+    list_display = (
+        'user',
+        'recipe',
+    )
+    search_fields = ('user',)
+    list_editable = ('recipe',)
+    empty_value_display = '-пусто-'
 
 
 site.unregister(Group)

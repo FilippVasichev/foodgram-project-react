@@ -25,22 +25,7 @@ urlpatterns = [
     path(f'{recipe_prefix}<int:id>/favorite/', favoriterecipeview),
     path(f'{recipe_prefix}<int:id>/shopping_cart/', shoppingcartview),
     path(f'{recipe_prefix}download_shopping_cart/', download_shopping_cart),
-    path(
-        'users/<int:id>/subscribe/',
-        DjoserCustomUserViewSet.as_view(
-            {
-                'post': 'subscribe',
-                'delete': 'subscribe',
-            }
-        ),
-    ),
     path('auth/', include('djoser.urls.authtoken')),
     path('', include(router_v1.urls)),
     path('', include('djoser.urls')),
 ]
-
-if settings.DEBUG:
-    urlpatterns += static(
-        settings.MEDIA_URL,
-        document_root=settings.MEDIA_ROOT
-    )

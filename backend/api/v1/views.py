@@ -1,5 +1,3 @@
-from pprint import pprint
-
 from django.db.utils import IntegrityError
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
@@ -12,13 +10,11 @@ from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
-from foodgram.models import FavoriteRecipe, ShoppingCart
-from recipe.models import Ingredient, Tag, Recipe
+from recipe.models import Ingredient, Tag, Recipe, FavoriteRecipe, ShoppingCart
 from users.models import Follow
 from users.models import User
 from .filters import RecipeFilterSet
 from .paginators import CustomPageNumberPaginator
-from .permissions import AuthorOr403
 from .serializers import (
     IngredientSerializer,
     TagSerializer,
@@ -96,7 +92,9 @@ class RecipeViewSet(ModelViewSet):
     добавить status=status.HTTP
     """
     permission_classes = (IsAuthenticatedOrReadOnly,)
-    queryset = Recipe.objects.prefetch_related(
+    queryset = Recipe.objects.select_related(
+        'author',
+    ).prefetch_related(
         'recipe_ingredient__ingredient',
         'tags'
     ).all()
@@ -104,38 +102,10 @@ class RecipeViewSet(ModelViewSet):
     filter_backends = [DjangoFilterBackend]
     filterset_class = RecipeFilterSet
 
-    def get_permissions(self):
-        print(self.action)
-        if self.action in ['partial_update', 'destroy']:
-            return (AuthorOr403(),)
-        return super().get_permissions()
-
     def get_serializer_class(self):
         if self.action in ['create', 'partial_update']:
             return CreateUpdateRecipeSerializer
         return RecipeSerializer
-
-    def retrieve(self, request, *args, **kwargs):
-        serializer = self.get_serializer(
-            self.get_object(),
-            context={'request': request},
-        )
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-    def update(self, request, *args, **kwargs):
-        serializer = self.get_serializer(
-            self.get_object(),
-            context={'request': request},
-            data=request.data,
-            partial=True,
-        )
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-    def destroy(self, request, *args, **kwargs):
-        self.perform_destroy(self.get_object())
-        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 @api_view(['DELETE', 'POST'])

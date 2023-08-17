@@ -1,20 +1,22 @@
-from django.contrib import admin
+from django.contrib.admin import (
+    register,
+    display,
+    ModelAdmin,
+)
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from .models import User, Follow
 
 
-class AdminUser(BaseUserAdmin):
-    change_password_template = "admin/auth/user/change_password.html"
-
-
-@admin.register(User)
-class UserAdmin(AdminUser):
+@register(User)
+class UserAdmin(BaseUserAdmin):
     list_display = (
         'username',
         'first_name',
         'last_name',
         'email',
         'is_staff',
+        'recipe_count',
+        'follow_count',
     )
     list_filter = (
         'email',
@@ -23,9 +25,22 @@ class UserAdmin(AdminUser):
     )
     empty_value_display = '-пусто-'
 
+    @display(
+        description='кол-во рецептов',
+        empty_value='-пусто-',
+    )
+    def recipe_count(self, user):
+        return user.recipe.count()
 
-@admin.register(Follow)
-class FollowAdmin(admin.ModelAdmin):
+    @display(
+        description='кол-во подписок',
+        empty_value='-пусто-',
+    )
+    def follow_count(self, user):
+        return user.following.count()
+
+@register(Follow)
+class FollowAdmin(ModelAdmin):
     list_display = (
         'user',
         'author',

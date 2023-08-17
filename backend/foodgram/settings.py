@@ -22,10 +22,10 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'djoser',
+    'colorfield',
 
     'api.v1.apps.ApiV1Config',
     'users.apps.UsersConfig',
-    'foodgram.apps.FoodgramConfig',
     'recipe.apps.RecipeConfig',
 ]
 
@@ -70,7 +70,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'api_foodgram.urls'
+ROOT_URLCONF = 'foodgram.urls'
 AUTH_USER_MODEL = 'users.User'
 
 TEMPLATES = [
@@ -89,7 +89,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'api_foodgram.wsgi.application'
+WSGI_APPLICATION = 'foodgram.wsgi.application'
 
 DATABASES = {
     'default': {
@@ -127,6 +127,3 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = ((BASE_DIR / 'static/'),)
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-
-MAX_FIELD_LENGTH = 150
-EMAIL_FIELD_MAX_LENGTH = 254

@@ -46,7 +46,7 @@ class Command(BaseCommand):
                         model.objects.create(**row)
                         self.stdout.write(self.style.SUCCESS(
                             f'Записи {file.capitalize()} созданы.'))
+                self.stdout.write(self.style.SUCCESS(
+                    'Поздравляем! Ваша БД наполнена!. '))
         except Exception as err:
             print('Произошла ошибка:', err)
-        self.stdout.write(self.style.SUCCESS(
-            'Поздравляем! Ваша БД наполнена!. '))
