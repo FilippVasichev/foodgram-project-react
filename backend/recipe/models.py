@@ -1,5 +1,5 @@
 from django.db import models
-from django.core.validators import MinValueValidator
+from django.core.validators import MinValueValidator, MaxValueValidator
 from colorfield.fields import ColorField
 
 from foodgram import constants
@@ -8,7 +8,7 @@ from users.models import User
 
 class Tag(models.Model):
     name = models.CharField(
-        max_length=constants.NAME_FIELD_MAX_LENGTH,
+        max_length=constants.RECIPE_NAME_MAX_LENGTH,
     )
     color = ColorField()
     slug = models.SlugField(unique=True)
@@ -24,13 +24,13 @@ class Tag(models.Model):
 class Ingredient(models.Model):
     name = models.CharField(
         verbose_name='Название ингредиента',
-        max_length=constants.NAME_FIELD_MAX_LENGTH,
+        max_length=constants.RECIPE_NAME_MAX_LENGTH,
         null=False,
         db_index=True,
     )
     measurement_unit = models.CharField(
         verbose_name='Единицы измерения',
-        max_length=constants.NAME_FIELD_MAX_LENGTH,
+        max_length=constants.RECIPE_NAME_MAX_LENGTH,
         null=False,
     )
 
@@ -53,12 +53,11 @@ class Recipe(models.Model):
         User,
         verbose_name='Автор',
         on_delete=models.CASCADE,
-        blank=False,
         null=False,
         related_name='recipe'
     )
     name = models.CharField(
-        max_length=constants.NAME_FIELD_MAX_LENGTH,
+        max_length=constants.RECIPE_NAME_MAX_LENGTH,
     )
     tags = models.ManyToManyField(
         Tag,
@@ -86,8 +85,10 @@ class Recipe(models.Model):
     cooking_time = models.PositiveSmallIntegerField(
         verbose_name='Время приготовления',
         null=False,
-        blank=False,
-        validators=[MinValueValidator(1)] ### Остановился здесь, добавить максимальный валидатор
+        validators=(
+            MinValueValidator(1, 'Укажите время приготовления'),
+            MaxValueValidator(1440, 'Слишком большое время приготовления')
+        )
     )
     pub_date = models.DateTimeField(
         verbose_name='Дата публикации',
@@ -95,7 +96,7 @@ class Recipe(models.Model):
     )
 
     class Meta:
-        ordering = ['-pub_date']
+        ordering = ('-pub_date',)
         verbose_name = 'Рецепт'
         verbose_name_plural = 'Рецепты'
 
@@ -108,19 +109,20 @@ class IngredientQuantity(models.Model):
         Recipe,
         on_delete=models.CASCADE,
         null=False,
-        blank=False,
         related_name='recipe_ingredient',
     )
     ingredient = models.ForeignKey(
         Ingredient,
         on_delete=models.CASCADE,
         null=False,
-        blank=False,
         related_name='ingredient_recipe'
     )
     amount = models.PositiveSmallIntegerField(
         null=False,
-        blank=False,
+        validators=(
+            MinValueValidator(1, 'Укажите кол-во ингредиента.'),
+            MaxValueValidator(999, 'Слишком больше время приготовления.')
+        )
     )
 
     def __str__(self):
@@ -132,13 +134,11 @@ class RecipeTag(models.Model):
         Recipe,
         on_delete=models.CASCADE,
         null=False,
-        blank=False,
     )
     tag = models.ForeignKey(
         Tag,
         on_delete=models.CASCADE,
         null=False,
-        blank=False,
         related_name='tag'
     )
 

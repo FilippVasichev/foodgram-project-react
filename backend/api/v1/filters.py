@@ -7,28 +7,17 @@ class RecipeFilterSet(filters.FilterSet):
     """
     Позволяет применять различные фильтры для поиска рецептов в списке.
     """
-    tags = filters.ModelMultipleChoiceFilter(
-        queryset=Tag.objects.all(),
-        field_name='recipetag__tag__slug',
-        to_field_name='slug',
-    )
-    author = filters.NumberFilter(
-        field_name='author_id',
-        lookup_expr='exact',
-    )
-    is_favorited = filters.BooleanFilter(
-        method='filter_is_favorite'
-    )
+    tags = filters.AllValuesMultipleFilter(field_name='recipetag__tag__slug',)
+    is_favorited = filters.BooleanFilter(method='filter_is_favorite')
     is_in_shopping_cart = filters.BooleanFilter(
         method='filter_is_in_shopping_cart'
     )
-
     class Meta:
         model = Recipe
-        fields = [
+        fields = (
             'tags',
             'author',
-        ]
+        )
 
     def filter_is_favorite(self, queryset, name, value):
         """

@@ -6,7 +6,7 @@ from djoser.views import UserViewSet
 from rest_framework import status
 from rest_framework.decorators import api_view, action
 from rest_framework.filters import SearchFilter
-from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
@@ -15,6 +15,7 @@ from users.models import Follow
 from users.models import User
 from .filters import RecipeFilterSet
 from .paginators import CustomPageNumberPaginator
+from .permissions import AuthorOrReadOnly
 from .serializers import (
     IngredientSerializer,
     TagSerializer,
@@ -23,45 +24,38 @@ from .serializers import (
     FavoriteSerializer,
     CustomUserSerializer,
     UserSubscriptionSerializer,
-    ShoppingCartSerializer,
+    ShoppingCartSerializer, CreateUserSubscriptionSerializer,
 )
 
 
 class DjoserCustomUserViewSet(UserViewSet):
     queryset = User.objects.all()
-    permission_classes = [AllowAny]
-    serializer_class = CustomUserSerializer
+    permission_classes = (AllowAny,)
     pagination_class = CustomPageNumberPaginator
 
-    @action(methods=['DELETE', 'POST'], detail=True)
+
+    @action(methods=['post'], detail=True)
     def subscribe(self, request, id=None):
-        if request.method == 'POST':
-            try:
-                serializer = UserSubscriptionSerializer(
-                    Follow.objects.create(
-                        user=request.user,
-                        author_id=id
-                    ),
-                    context={'request': request},
-                )
-                return Response(
-                    serializer.data,
-                    status=status.HTTP_201_CREATED
-                )
-            except IntegrityError:
-                return Response(
-                    {'errors': 'Вы уже подписаны на этого автора.'},
-                    status=status.HTTP_400_BAD_REQUEST)
-        get_object_or_404(
-            Follow,
-            user=request.user,
-            author_id=id
-        ).delete()
+        user = request.user
+        serializer = CreateUserSubscriptionSerializer(
+            data={'request': request},
+            context={
+                'user': user,
+                'author': id,
+            }
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save(author_id=id, user=user)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    @subscribe.mapping.delete
+    def delete_subscribe(self, request, id=None):
+        get_object_or_404(Follow, user=request.user, author_id=id).delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(methods=['GET'], detail=False)
     def subscriptions(self, request):
-        subscriptions = Follow.objects.filter(user_id=request.user.id)
+        subscriptions = User.objects.filter(following__user=request.user.id)
         paginated_subscription = self.paginate_queryset(subscriptions)
         serializer = UserSubscriptionSerializer(
             paginated_subscription,
@@ -91,7 +85,7 @@ class RecipeViewSet(ModelViewSet):
     """
     добавить status=status.HTTP
     """
-    permission_classes = (IsAuthenticatedOrReadOnly,)
+    permission_classes = (AuthorOrReadOnly,)
     queryset = Recipe.objects.select_related(
         'author',
     ).prefetch_related(
@@ -107,72 +101,90 @@ class RecipeViewSet(ModelViewSet):
             return CreateUpdateRecipeSerializer
         return RecipeSerializer
 
+    @action(methods=['get'], detail=False)
+    def download_shopping_cart(self, request):
+        user = request.user
+        shopping_list = user.shopping_cart.all()
+        ingredients_list = {}
+        for item in shopping_list:
+            ingredients = item.recipe.recipe_ingredient.all()
+            for ingredient_quantity in ingredients:
+                ingredient = ingredient_quantity.ingredient
+                amount = ingredient_quantity.amount
+                if ingredient in ingredients_list:
+                    ingredients_list[ingredient] += amount
+                else:
+                    ingredients_list[ingredient] = amount
 
-@api_view(['DELETE', 'POST'])
-def favoriterecipeview(request, id=None):
-    if request.method == 'POST':
-        serializer = FavoriteSerializer(
-            data=request.data,
+        response = HttpResponse(content_type='text/plain')
+        response['Content-Disposition'] = (
+            f'attachment; filename="{user.username}_shopping_list.txt"'
+        )
+        for ingredient, amount in ingredients_list.items():
+            line = f"{ingredient}: {amount}\n"
+            response.write(line)
+        return response
+
+    @staticmethod
+    def create_instance(serializer, pk, request):
+        _serializer = serializer(
+            data={'request': request,},
             context={
-                'request': request,
-                'kwargs': id
+                'user_id': request.user.id,
+                'recipe_id': pk,
             }
         )
-        if serializer.is_valid(raise_exception=True):
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    get_object_or_404(
-        FavoriteRecipe,
-        recipe_id=id,
-        user=request.user,
-    ).delete()
-    return Response(status=status.HTTP_204_NO_CONTENT)
+        _serializer.is_valid(raise_exception=True)
+        _serializer.save()
+        return Response(_serializer.data, status=status.HTTP_201_CREATED)
 
+    @action(methods=['post'], detail=True)
+    def favorite(self, request, pk):
+        self.create_instance(FavoriteSerializer, pk, request)
 
-@api_view(['DELETE', 'POST'])
-def shoppingcartview(request, id=None):
-    if request.method == 'POST':
-        serializer = ShoppingCartSerializer(
-            data=request.data,
-            context={
-                'request': request,
-                'kwargs': id,
-            }
-        )
-        if serializer.is_valid(raise_exception=True):
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    get_object_or_404(
-        ShoppingCart,
-        recipe_id=id,
-        user=request.user,
-    ).delete()
-    return Response(status=status.HTTP_204_NO_CONTENT)
+    @action(methods=['post'], detail=True)
+    def shopping_cart(self, request, pk):
+        self.create_instance(ShoppingCartSerializer, request, pk)
 
-
-@api_view(['GET'])
-def download_shopping_cart(request):
-    user = request.user
-    shopping_list = user.shopping_cart.all()
-    ingredients_list = {}
-    for item in shopping_list:
-        ingredients = item.recipe.recipe_ingredient.all()
-        for ingredient_quantity in ingredients:
-            ingredient = ingredient_quantity.ingredient
-            amount = ingredient_quantity.amount
-            if ingredient in ingredients_list:
-                ingredients_list[ingredient] += amount
-            else:
-                ingredients_list[ingredient] = amount
-    pprint(ingredients_list)
-
-    response = HttpResponse(content_type='text/plain')
-    response['Content-Disposition'] = (
-        f'attachment; filename="{user.username}_shopping_list.txt"'
-    )
-    for ingredient, amount in ingredients_list.items():
-        line = f"{ingredient}: {amount}\n"
-        response.write(line)
-    return response
+# @api_view(['DELETE', 'POST'])
+# def favoriterecipeview(request, id=None):
+#     if request.method == 'POST':
+#         serializer = FavoriteSerializer(
+#             data=request.data,
+#             context={
+#                 'request': request,
+#                 'kwargs': id
+#             }
+#         )
+#         if serializer.is_valid(raise_exception=True):
+#             serializer.save()
+#             return Response(serializer.data, status=status.HTTP_201_CREATED)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+#     get_object_or_404(
+#         FavoriteRecipe,
+#         recipe_id=id,
+#         user=request.user,
+#     ).delete()
+#     return Response(status=status.HTTP_204_NO_CONTENT)
+#
+#
+# @api_view(['DELETE', 'POST'])
+# def shoppingcartview(request, id=None):
+#     if request.method == 'POST':
+#         serializer = ShoppingCartSerializer(
+#             data=request.data,
+#             context={
+#                 'request': request,
+#                 'kwargs': id,
+#             }
+#         )
+#         if serializer.is_valid(raise_exception=True):
+#             serializer.save()
+#             return Response(serializer.data, status=status.HTTP_201_CREATED)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+#     get_object_or_404(
+#         ShoppingCart,
+#         recipe_id=id,
+#         user=request.user,
+#     ).delete()
+#     return Response(status=status.HTTP_204_NO_CONTENT)

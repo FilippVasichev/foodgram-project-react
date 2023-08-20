@@ -6,12 +6,27 @@ from foodgram import constants
 
 class User(AbstractUser):
     email = models.EmailField(
-        'email address',
+        'Email адрес',
         unique=True,
-        blank=True,
+        null=False,
         max_length=constants.EMAIL_FIELD_MAX_LENGTH,
     )
-
+    username = models.CharField(
+        'Юзернейм',
+        max_length=constants.USER_NAME_MAX_LENGTH,
+        unique=True,
+        null=False,
+    )
+    first_name = models.CharField(
+        'Имя',
+        max_length=constants.USER_NAME_MAX_LENGTH,
+        null=False,
+    )
+    last_name = models.CharField(
+        'Фамилия',
+        max_length=constants.USER_NAME_MAX_LENGTH,
+        null=False
+    )
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = (
         'first_name',
@@ -20,9 +35,9 @@ class User(AbstractUser):
     )
 
     class Meta:
+        ordering = ('pk',)
         verbose_name = 'пользователя'
         verbose_name_plural = 'пользователи'
-        ordering = ('date_joined',)
 
     def __str__(self):
         return self.username
@@ -47,9 +62,9 @@ class Follow(models.Model):
     )
 
     class Meta:
+        ordering = ('author',)
         verbose_name = 'Подписку'
         verbose_name_plural = 'Подписки'
-
         constraints = [
             models.UniqueConstraint(
                 fields=['user', 'author'], name='unique_follow'),

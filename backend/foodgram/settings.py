@@ -24,8 +24,8 @@ INSTALLED_APPS = [
     'djoser',
     'colorfield',
 
-    'api.v1.apps.ApiV1Config',
     'users.apps.UsersConfig',
+    'api.v1.apps.ApiV1Config',
     'recipe.apps.RecipeConfig',
 ]
 
@@ -41,23 +41,16 @@ REST_FRAMEWORK = {
     'SEARCH_PARAM': 'name'
 }
 
-SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
-    'AUTH_HEADER_TYPES': ('Bearer',),
-}
-
 DJOSER = {
-    'SERIALIZERS': {
-        'user_create': 'api.v1.serializers.CustomUserCreateSerializer',
-        'user': 'api.v1.serializers.CustomUserSerializer',
-        'current_user': 'api.v1.serializers.CustomUserSerializer',
-    },
-    'LOGIN_FIELD': 'email',
+    # 'SERIALIZERS': {
+    #     'user': 'api.v1.serializers.CustomUserSerializer',
+    #     'current_user': 'api.v1.serializers.CustomUserSerializer',
+    # },
     'HIDE_USERS': False,
-    'PERMISSIONS': {
-        'user': ['rest_framework.permissions.AllowAny'],
-        'user_list': ['rest_framework.permissions.AllowAny'],
-    }
+    # 'PERMISSIONS': {
+    #     'user': ['rest_framework.permissions.AllowAny'],
+    #     'user_list': ['rest_framework.permissions.AllowAny'],
+    # }
 }
 
 MIDDLEWARE = [

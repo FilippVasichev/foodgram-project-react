@@ -82,15 +82,13 @@ class RecipeAdmin(ModelAdmin):
     def recipe_tags(self, recipe):
         return list(recipe.tags.all())
 
-    @display(
-        description='Картинка',
-        empty_value='-пусто-',
-    )
+    @display(description='Картинка')
+    @mark_safe
     def recipe_image(self, recipe):
         if recipe.image:
-            return mark_safe(
-                f'<img src={recipe.image.url} width="80" height="60">'
-            )
+            return f'<img src={recipe.image.url} width="80" height="60">'
+        return '-пусто-'
+
 
 
 @register(ShoppingCart)

@@ -1,52 +1,46 @@
 import csv
-
-from recipe.models import Ingredient, Tag
-from users.models import User
+import os
 
 from django.conf import settings
 from django.core.management.base import BaseCommand
 
-CSV_FILES = {
-    'ingredients': Ingredient,
-    'users': User,
-    'tags': Tag,
-}
+from recipe.models import Ingredient, Tag
 
-CONTENT_DIR = settings.BASE_DIR / 'static/data'
+csv_path = os.path.join(settings.BASE_DIR, 'data', 'ingredients.csv')
+
+tags = {
+    'Завтрак': ('#00FF00', 'breakfast'),
+    'Обед': ('#FF0000', 'lunch'),
+    'Ужин': ('#800080', 'dinner')
+}
 
 
 class Command(BaseCommand):
     """
-    Импортирует данные для конкретных моделей из .csv файлов.
+    Импортирует данные моделей из .csv файлов.
     """
-
-    def add_arguments(self, parser):
-        parser.add_argument(
-            '--delete-existing',
-            action='store_true',
-            dest='delete_existing',
-            default=False,
-            help='Удаляет существующие данные конкретной Модели',
-        )
-
     def handle(self, *args, **options):
         try:
-            for file, model in CSV_FILES.items():
-                with open(
-                        CONTENT_DIR / f'{file}.csv',
-                        encoding='utf-8',
-                        newline=''
-                ) as f:
-                    reader = csv.DictReader(f)
-                    if options["delete_existing"]:
-                        model.objects.all().delete()
-                    self.stdout.write(self.style.SUCCESS(
-                        f'Удалены старые записи {file.capitalize()}.'))
-                    for row in reader:
-                        model.objects.create(**row)
-                        self.stdout.write(self.style.SUCCESS(
-                            f'Записи {file.capitalize()} созданы.'))
-                self.stdout.write(self.style.SUCCESS(
-                    'Поздравляем! Ваша БД наполнена!. '))
-        except Exception as err:
-            print('Произошла ошибка:', err)
+            with open(csv_path, encoding='utf-8', newline='') as f:
+                reader = csv.reader(f)
+                for name, unit in reader:
+                    Ingredient.objects.get_or_create(
+                        name=name,
+                        measurement_unit=unit,
+                    )
+                self.stdout.write(
+                    self.style.SUCCESS('Записи ингридиентов созданы.')
+                )
+                for name, (color, slug) in tags.items():
+                    Tag.objects.get_or_create(
+                        name=name,
+                        color=color,
+                        slug=slug,
+                    )
+                self.stdout.write(
+                    self.style.SUCCESS('Записи тэгов созданы.')
+                )
+        except FileNotFoundError:
+            return 'Файл не найден.'
+        except csv.Error as err:
+            return f'Ошибка чтения CSV: {err}'
