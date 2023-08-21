@@ -9,8 +9,6 @@ class AuthorOrReadOnly(BasePermission):
     """
 
     def has_object_permission(self, request, view, recipe):
-        return (
-                request.method in SAFE_METHODS
+        return (request.method in SAFE_METHODS
                 or request.user == recipe.author
-                or request.user and request.user.is_staff
-        )
+                or request.user and request.user.is_staff)
