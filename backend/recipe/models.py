@@ -86,8 +86,14 @@ class Recipe(models.Model):
         verbose_name='Время приготовления',
         null=False,
         validators=(
-            MinValueValidator(1, 'Укажите время приготовления'),
-            MaxValueValidator(1440, 'Слишком большое время приготовления')
+            MinValueValidator(
+                constants.MIN_COOKING_TIME,
+                'Укажите время приготовления'
+            ),
+            MaxValueValidator(
+                constants.MAX_COOKING_TIME,
+                'Слишком большое время приготовления'
+            )
         )
     )
     pub_date = models.DateTimeField(
@@ -96,7 +102,7 @@ class Recipe(models.Model):
     )
 
     class Meta:
-        ordering = ('-pub_date',)
+        ordering = ('id',)
         verbose_name = 'Рецепт'
         verbose_name_plural = 'Рецепты'
 
@@ -120,8 +126,14 @@ class IngredientQuantity(models.Model):
     amount = models.PositiveSmallIntegerField(
         null=False,
         validators=(
-            MinValueValidator(1, 'Укажите кол-во ингредиента.'),
-            MaxValueValidator(999, 'Слишком больше время приготовления.')
+            MinValueValidator(
+                constants.MIN_INGREDIENT_AMOUNT,
+                'Укажите кол-во ингредиента.'
+            ),
+            MaxValueValidator(
+                constants.MAX_INGREDIENT_AMOUNT,
+                'Слишком большое число.'
+            )
         )
     )
 

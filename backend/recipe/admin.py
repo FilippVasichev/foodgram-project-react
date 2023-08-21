@@ -90,7 +90,6 @@ class RecipeAdmin(ModelAdmin):
         return '-пусто-'
 
 
-
 @register(ShoppingCart)
 class ShoppingCartAdmin(ModelAdmin):
     list_display = (

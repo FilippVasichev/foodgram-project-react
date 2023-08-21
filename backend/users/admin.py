@@ -39,6 +39,7 @@ class UserAdmin(BaseUserAdmin):
     def follow_count(self, user):
         return user.following.count()
 
+
 @register(Follow)
 class FollowAdmin(ModelAdmin):
     list_display = (
