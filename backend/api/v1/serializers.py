@@ -32,13 +32,9 @@ class CustomUserSerializer(UserSerializer):
         read_only_fields = ('is_subscribed',)
 
     def get_is_subscribed(self, author):
-        user = self.context.get('request').user
-        if user.is_authenticated:
-            return Follow.objects.filter(
-                user=user,
-                author=author).exists()
-        return False
-
+        request = self.context.get('request')
+        return (request and request.user.is_authenticated
+                and author.following.filter(user=request.user).exists())
 
 class IngredientSerializer(serializers.ModelSerializer):
     """
@@ -194,9 +190,7 @@ class CreateUpdateRecipeSerializer(serializers.ModelSerializer):
 
     @staticmethod
     def recipe_ingredients_tags_save(recipe, ingredients=None, tags=None):
-        if tags:
             recipe.tags.set(tags)
-        if ingredients:
             ingredient_quantities = [
                 IngredientQuantity(
                     recipe=recipe,

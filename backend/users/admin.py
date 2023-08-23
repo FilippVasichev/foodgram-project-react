@@ -4,6 +4,7 @@ from django.contrib.admin import (
     ModelAdmin,
 )
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
+
 from .models import User, Follow
 
 

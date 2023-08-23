@@ -8,24 +8,20 @@ class User(AbstractUser):
     email = models.EmailField(
         'Email адрес',
         unique=True,
-        null=False,
         max_length=constants.EMAIL_FIELD_MAX_LENGTH,
     )
     username = models.CharField(
         'Юзернейм',
         max_length=constants.USER_NAME_MAX_LENGTH,
         unique=True,
-        null=False,
     )
     first_name = models.CharField(
         'Имя',
         max_length=constants.USER_NAME_MAX_LENGTH,
-        null=False,
     )
     last_name = models.CharField(
         'Фамилия',
         max_length=constants.USER_NAME_MAX_LENGTH,
-        null=False
     )
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = (
@@ -35,7 +31,10 @@ class User(AbstractUser):
     )
 
     class Meta:
-        ordering = ('pk',)
+        ordering = (
+            'username',
+            'email',
+        )
         verbose_name = 'пользователя'
         verbose_name_plural = 'пользователи'
 
@@ -48,7 +47,6 @@ class Follow(models.Model):
         User,
         verbose_name='Подписчик',
         related_name='follower',
-        null=False,
         on_delete=models.CASCADE,
         help_text='Подписчик'
     )
@@ -56,7 +54,6 @@ class Follow(models.Model):
         User,
         verbose_name='Автор',
         related_name='following',
-        null=False,
         on_delete=models.CASCADE,
         help_text='Автор контента'
     )

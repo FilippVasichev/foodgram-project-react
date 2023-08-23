@@ -1,15 +1,16 @@
-from django.db.models import Exists, OuterRef
+from django.db.models import Exists, OuterRef, Sum
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.filters import SearchFilter
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAdminUser
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
-from recipe.models import Ingredient, Tag, Recipe, FavoriteRecipe, ShoppingCart
+from recipe.models import Ingredient, Tag, Recipe, FavoriteRecipe, ShoppingCart, \
+    IngredientQuantity
 from users.models import Follow
 from users.models import User
 from .filters import RecipeFilterSet
@@ -25,7 +26,7 @@ from .serializers import (
     ShoppingCartSerializer,
     CreateUserSubscriptionSerializer,
 )
-from .utils import generate_shopping_cart_file
+from .shopping_cart_list_generator import generate_shopping_cart_file
 
 
 class DjoserCustomUserViewSet(UserViewSet):
@@ -54,7 +55,7 @@ class DjoserCustomUserViewSet(UserViewSet):
 
     @action(methods=['GET'], detail=False)
     def subscriptions(self, request):
-        subscriptions = User.objects.filter(following__user=request.user.id)
+        subscriptions = User.objects.filter(following__user=request.user)
         paginated_subscription = self.paginate_queryset(subscriptions)
         serializer = UserSubscriptionSerializer(
             paginated_subscription,
@@ -116,7 +117,15 @@ class RecipeViewSet(ModelViewSet):
 
     @action(methods=['get'], detail=False)
     def download_shopping_cart(self, request):
-        return generate_shopping_cart_file(request.user)
+        ingredients = IngredientQuantity.objects.filter(
+            recipe__shopping_cart__user_id=request.user.id
+        ).values(
+            'ingredient__name',
+            'ingredient__measurement_unit',
+        ).annotate(
+            amount=Sum('amount')
+        ).order_by('ingredient__name')
+        return generate_shopping_cart_file(ingredients)
 
     @staticmethod
     def create_instance(serializer, pk, request):

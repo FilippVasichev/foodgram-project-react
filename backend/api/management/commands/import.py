@@ -20,6 +20,15 @@ class Command(BaseCommand):
     Импортирует данные моделей из .csv файлов.
     """
     def handle(self, *args, **options):
+        for name, (color, slug) in tags.items():
+            Tag.objects.get_or_create(
+                name=name,
+                color=color,
+                slug=slug,
+            )
+        self.stdout.write(
+            self.style.SUCCESS('Записи тэгов созданы.')
+        )
         try:
             with open(csv_path, encoding='utf-8', newline='') as f:
                 reader = csv.reader(f)
@@ -31,16 +40,8 @@ class Command(BaseCommand):
                 self.stdout.write(
                     self.style.SUCCESS('Записи ингридиентов созданы.')
                 )
-                for name, (color, slug) in tags.items():
-                    Tag.objects.get_or_create(
-                        name=name,
-                        color=color,
-                        slug=slug,
-                    )
-                self.stdout.write(
-                    self.style.SUCCESS('Записи тэгов созданы.')
-                )
         except FileNotFoundError:
             return 'Файл не найден.'
         except csv.Error as err:
             return f'Ошибка чтения CSV: {err}'
+
