@@ -5,8 +5,8 @@ from django.contrib.admin import (
     display,
     site
 )
-from django.utils.safestring import mark_safe
 from django.contrib.auth.models import Group
+from django.utils.safestring import mark_safe
 
 from .models import Tag, Ingredient, Recipe, ShoppingCart, FavoriteRecipe
 

@@ -44,4 +44,3 @@ class Command(BaseCommand):
             return 'Файл не найден.'
         except csv.Error as err:
             return f'Ошибка чтения CSV: {err}'
-

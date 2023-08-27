@@ -9,11 +9,14 @@ click==8.1.6
 cryptography==41.0.2
 defusedxml==0.7.1
 Django==3.2.3
+django-colorfield==0.9.0
 django-filter==23.2
 django-templated-mail==1.1.1
 djangorestframework==3.12.4
 djangorestframework-simplejwt==5.2.2
 djoser==2.2.0
+drf-extra-fields==3.7.0
+filetype==1.2.0
 Flask==2.3.2
 idna==3.4
 importlib-metadata==6.8.0
@@ -26,6 +29,7 @@ Pillow==10.0.0
 pycparser==2.21
 pycryptodome==3.18.0
 PyJWT==2.8.0
+python-dotenv==1.0.0
 python3-openid==3.2.0
 pytz==2023.3
 redis==4.6.0

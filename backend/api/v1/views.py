@@ -1,16 +1,22 @@
-from django.db.models import Exists, OuterRef, Sum
+from django.db.models import Sum
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.filters import SearchFilter
-from rest_framework.permissions import AllowAny, IsAdminUser
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
-from recipe.models import Ingredient, Tag, Recipe, FavoriteRecipe, ShoppingCart, \
-    IngredientQuantity
+from recipe.models import (
+    Ingredient,
+    Tag,
+    Recipe,
+    FavoriteRecipe,
+    ShoppingCart,
+    IngredientQuantity,
+)
 from users.models import Follow
 from users.models import User
 from .filters import RecipeFilterSet
@@ -36,16 +42,12 @@ class DjoserCustomUserViewSet(UserViewSet):
 
     @action(methods=['post'], detail=True)
     def subscribe(self, request, id=None):
-        user = request.user
         serializer = CreateUserSubscriptionSerializer(
-            data={'request': request},
-            context={
-                'user': user,
-                'author': id,
-            }
+            data={'user': request.user.id, 'author': id},
+            context={'request': request},
         )
         serializer.is_valid(raise_exception=True)
-        serializer.save(author_id=id, user=user)
+        serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     @subscribe.mapping.delete
@@ -86,29 +88,19 @@ class RecipeViewSet(ModelViewSet):
     добавить status=status.HTTP
     """
     permission_classes = (AuthorOrReadOnly,)
-    queryset = Recipe.objects.select_related(
-        'author',
-    ).prefetch_related(
-        'recipe_ingredient__ingredient',
-        'tags',
-    ).all()
     http_method_names = ['get', 'patch', 'delete', 'post']
     filter_backends = [DjangoFilterBackend]
     filterset_class = RecipeFilterSet
 
     def get_queryset(self):
-        favorited = FavoriteRecipe.objects.filter(
-            user=self.request.user.id,
-            recipe_id=OuterRef('pk')
-        )
-        shopping_cart = ShoppingCart.objects.filter(
-            user=self.request.user.id,
-            recipe_id=OuterRef('pk')
-        )
-        return self.queryset.annotate(
-            is_favorited=Exists(favorited),
-            is_in_shopping_cart=Exists(shopping_cart)
-        )
+        return Recipe.objects.select_related(
+            'author',
+        ).prefetch_related(
+            'recipe_ingredient__ingredient',
+            'tags',
+        ).annotate_user_fields(
+            self.request.user.id
+        ).all()
 
     def get_serializer_class(self):
         if self.action in ['create', 'partial_update']:
@@ -129,17 +121,13 @@ class RecipeViewSet(ModelViewSet):
 
     @staticmethod
     def create_instance(serializer, pk, request):
-        user_id = request.user.id
-        _serializer = serializer(
-            data={'request': request},
-            context={
-                'user_id': user_id,
-                'recipe_id': pk,
-            }
+        serializer = serializer(
+            data={'user': request.user.id, 'recipe': pk},
+            context={'request': request}
         )
-        _serializer.is_valid(raise_exception=True)
-        _serializer.save(user_id=user_id, recipe_id=pk)
-        return Response(_serializer.data, status=status.HTTP_201_CREATED)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     @action(methods=['post'], detail=True)
     def favorite(self, request, pk=None):

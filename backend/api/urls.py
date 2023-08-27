@@ -8,7 +8,6 @@ from api.v1.views import (
     DjoserCustomUserViewSet,
 )
 
-
 router_v1 = DefaultRouter()
 router_v1.register(r'ingredients', IngredientViewSet, basename='ingredients')
 router_v1.register(r'tags', TagViewSet, basename='tags')

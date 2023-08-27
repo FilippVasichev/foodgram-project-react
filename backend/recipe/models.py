@@ -1,6 +1,7 @@
-from django.db import models
-from django.core.validators import MinValueValidator, MaxValueValidator
 from colorfield.fields import ColorField
+from django.core.validators import MinValueValidator, MaxValueValidator
+from django.db import models
+from django.db.models import Exists, OuterRef
 
 from foodgram import constants
 from users.models import User
@@ -45,6 +46,28 @@ class Ingredient(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class RecipeQuerySet(models.QuerySet):
+    """
+    Возвращает queryset с аннотациями,
+    связанными с избранными рецептами и корзиной для покупок,
+    если пользователь аутентифицирован.
+    Если пользователь анонимен, метод возвращает базовый queryset.
+    """
+    def annotate_user_fields(self, user_id):
+        favorited = FavoriteRecipe.objects.filter(
+            user=user_id,
+            recipe_id=OuterRef('pk')
+        )
+        shopping_cart = ShoppingCart.objects.filter(
+            user=user_id,
+            recipe_id=OuterRef('pk')
+        )
+        return self.annotate(
+                is_favorited=Exists(favorited),
+                is_in_shopping_cart=Exists(shopping_cart)
+            ) if user_id else self
 
 
 class Recipe(models.Model):
@@ -96,6 +119,7 @@ class Recipe(models.Model):
         'Дата публикации',
         auto_now_add=True,
     )
+    objects = RecipeQuerySet.as_manager()
 
     class Meta:
         ordering = (
@@ -134,9 +158,6 @@ class IngredientQuantity(models.Model):
             )
         )
     )
-
-    class Meta:
-        ordering = ('ingredient__name',)
 
     def __str__(self):
         return self.ingredient.name
