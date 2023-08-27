@@ -7,7 +7,6 @@ load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
 SECRET_KEY = os.getenv('SECRET_KEY')
 DEBUG = True if os.getenv('DJANGO_DEBUG') else False
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS').split(',')
@@ -101,8 +100,6 @@ else:
         }
     }
 
-
-
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -119,15 +116,10 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 LANGUAGE_CODE = 'ru'
-
 TIME_ZONE = 'Europe/Moscow'
-
 USE_I18N = True
-
 USE_L10N = True
-
 USE_TZ = True
-
 STATIC_URL = '/static/'
 STATICFILES_DIRS = ((BASE_DIR / 'static/'),)
 MEDIA_URL = '/media/'
