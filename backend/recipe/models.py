@@ -67,7 +67,7 @@ class RecipeQuerySet(models.QuerySet):
         return self.annotate(
             is_favorited=Exists(favorited),
             is_in_shopping_cart=Exists(shopping_cart)
-        ) if user_id else self
+        ) if user_id else super().annotate()
 
 
 class Recipe(models.Model):
