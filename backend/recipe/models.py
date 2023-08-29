@@ -12,7 +12,7 @@ class Tag(models.Model):
         'Название тэга',
         max_length=constants.RECIPE_NAME_MAX_LENGTH,
     )
-    color = ColorField()
+    color = ColorField('Цвет тэга')
     slug = models.SlugField(unique=True)
 
     class Meta:

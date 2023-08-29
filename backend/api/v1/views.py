@@ -100,7 +100,7 @@ class RecipeViewSet(ModelViewSet):
             'tags',
         ).annotate_user_fields(
             self.request.user.id
-        ).all()
+        )
 
     def get_serializer_class(self):
         if self.action in ['create', 'partial_update']:

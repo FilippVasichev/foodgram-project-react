@@ -195,10 +195,10 @@ class CreateUpdateRecipeSerializer(serializers.ModelSerializer):
         ingredient_quantities = [
             IngredientQuantity(
                 recipe=recipe,
-                ingredient=ingredients.get('ingredient'),
-                amount=ingredients.get('amount')
+                ingredient=ingredient.get('ingredient'),
+                amount=ingredient.get('amount')
             )
-            for ingredients in sorted(
+            for ingredient in sorted(
                 ingredients,
                 key=lambda x: x['ingredient'].name,
             )
@@ -331,11 +331,11 @@ class UserSubscriptionSerializer(CustomUserSerializer):
         Recipes_limit: ограничение кол-ва
         рецептов автора в выдаче.
         """
+        request = self.context.get('request')
         try:
-            request = self.context.get('request')
             recipes_limit = int(request.GET.get('recipes_limit'))
-        except (ValueError, TypeError):
-            recipes_limit = 3
+        except (ValueError, TypeError) as error:
+            raise error
         queryset = user.recipe.all()
         return SubscriptionAuthorRecipesSerializer(
             queryset[:recipes_limit] if recipes_limit else queryset,
@@ -353,6 +353,9 @@ class CreateUserSubscriptionSerializer(serializers.ModelSerializer):
         if Follow.objects.filter(**attrs).exists():
             raise serializers.ValidationError(
                 'Вы уже подписаны на этого автора.')
+        if attrs['user'] == self.context['request'].user:
+            raise serializers.ValidationError(
+                'Нельзя подписаться на себя.')
         return attrs
 
     def to_representation(self, instance):
