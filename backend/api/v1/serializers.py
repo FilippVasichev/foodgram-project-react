@@ -3,14 +3,8 @@ from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
 
 from foodgram import constants
-from recipe.models import (
-    Ingredient,
-    Tag,
-    Recipe,
-    IngredientQuantity,
-    FavoriteRecipe,
-    ShoppingCart,
-)
+from recipe.models import (FavoriteRecipe, Ingredient, IngredientQuantity,
+                           Recipe, ShoppingCart, Tag)
 from users.models import Follow
 
 

@@ -1,14 +1,9 @@
-from django.contrib.admin import (
-    TabularInline,
-    ModelAdmin,
-    register,
-    display,
-    site
-)
+from django.contrib.admin import (ModelAdmin, TabularInline, display, register,
+                                  site)
 from django.contrib.auth.models import Group
 from django.utils.safestring import mark_safe
 
-from .models import Tag, Ingredient, Recipe, ShoppingCart, FavoriteRecipe
+from .models import FavoriteRecipe, Ingredient, Recipe, ShoppingCart, Tag
 
 
 @register(Tag)

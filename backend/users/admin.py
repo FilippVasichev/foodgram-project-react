@@ -1,11 +1,7 @@
-from django.contrib.admin import (
-    register,
-    display,
-    ModelAdmin,
-)
+from django.contrib.admin import ModelAdmin, display, register
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 
-from .models import User, Follow
+from .models import Follow, User
 
 
 @register(User)

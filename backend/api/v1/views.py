@@ -9,29 +9,18 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
-from recipe.models import (
-    Ingredient,
-    Tag,
-    Recipe,
-    FavoriteRecipe,
-    ShoppingCart,
-    IngredientQuantity,
-)
-from users.models import Follow
-from users.models import User
+from recipe.models import (FavoriteRecipe, Ingredient, IngredientQuantity,
+                           Recipe, ShoppingCart, Tag)
+from users.models import Follow, User
+
 from .filters import RecipeFilterSet
 from .paginators import CustomPageNumberPaginator
 from .permissions import AuthorOrReadOnly
-from .serializers import (
-    IngredientSerializer,
-    TagSerializer,
-    RecipeSerializer,
-    CreateUpdateRecipeSerializer,
-    FavoriteSerializer,
-    UserSubscriptionSerializer,
-    ShoppingCartSerializer,
-    CreateUserSubscriptionSerializer,
-)
+from .serializers import (CreateUpdateRecipeSerializer,
+                          CreateUserSubscriptionSerializer, FavoriteSerializer,
+                          IngredientSerializer, RecipeSerializer,
+                          ShoppingCartSerializer, TagSerializer,
+                          UserSubscriptionSerializer)
 from .shopping_cart_list_generator import generate_shopping_cart_file
 
 
