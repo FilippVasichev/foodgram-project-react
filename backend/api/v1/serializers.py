@@ -333,7 +333,7 @@ class UserSubscriptionSerializer(CustomUserSerializer):
         """
         request = self.context.get('request')
         try:
-            recipes_limit = int(request.GET.get('recipes_limit'))
+            recipes_limit = int(request.GET.get('recipes_limit', 0))
         except (ValueError, TypeError) as error:
             raise error
         queryset = user.recipe.all()
@@ -353,7 +353,7 @@ class CreateUserSubscriptionSerializer(serializers.ModelSerializer):
         if Follow.objects.filter(**attrs).exists():
             raise serializers.ValidationError(
                 'Вы уже подписаны на этого автора.')
-        if attrs['user'] == self.context['request'].user:
+        if attrs['user'] == attrs['author']:
             raise serializers.ValidationError(
                 'Нельзя подписаться на себя.')
         return attrs

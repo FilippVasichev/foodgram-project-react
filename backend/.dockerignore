@@ -8,3 +8,4 @@ db.sqlite3
 */temp*
 */*/temp*
 temp?
+collected_static/

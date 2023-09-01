@@ -3,6 +3,7 @@ version: '3'
 volumes:
   foodgram_postgre:
   foodgram_static:
+  foodgram_media:
 
 services:
   db:
@@ -11,15 +12,16 @@ services:
     volumes:
       - foodgram_postgre:/var/lib/postgresql/data
   backend:
-    build: ./backend/
+    image: zionweeds/foodgram_backend
     env_file: .env
     depends_on:
       - db
     volumes:
+      - foodgram_media:/foodgram_app/media/
       - foodgram_static:/backend_static
   frontend:
     env_file: .env
-    build: ./frontend/
+    image: zionweeds/foodgram_frontend
     command: cp -r /app/build/. /frontend_static/
     volumes:
       - foodgram_static:/frontend_static
@@ -29,11 +31,7 @@ services:
       - backend
     volumes:
        - foodgram_static:/staticfiles
-    build: ./infra/
+       - foodgram_media:/foodgram_app/media/
+    image: zionweeds/foodgram_nginx
     ports:
       - 8000:80
-
-#    volumes:
-#      - ./nginx.conf:/etc/nginx/conf.d/default.conf
-#      - ../frontend/build:/usr/share/nginx/html/
-#      - ../docs/:/usr/share/nginx/html/foodgram/docs/

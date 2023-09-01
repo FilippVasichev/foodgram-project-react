@@ -152,5 +152,5 @@ infra/
 docs/
 migrations/
 static/
-
+collected_static/
 
