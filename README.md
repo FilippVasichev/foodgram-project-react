@@ -148,9 +148,6 @@ python manage.py runserver
 # Автор 
 
 + FilippVasichev
-
-+ ![GitHub](https://img.shields.io/badge/GitHub-FilippVasichev-brightgreen)
-+ ![Gmail](https://img.shields.io/badge/Gmail-aciktrasher@gmail.com-red)
-+ ![Telegram](https://img.shields.io/badge/Telegram-@zionweeds-blue)
++ https://github.com/FilippVasichev 
 
 
