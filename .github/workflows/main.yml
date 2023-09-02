@@ -1,8 +1,7 @@
 name: Foodgram workflow
 on:
   push:
-    branches:
-      - '*'
+
 jobs:
   backend_test:
     runs-on: ubuntu-latest
