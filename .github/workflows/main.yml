@@ -4,7 +4,7 @@ on:
     branches:
       - '*'
 jobs:
-  backend_CI:
+  backend_test:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -42,11 +42,12 @@ jobs:
           DB_HOST: 127.0.0.1
           DB_PORT: 5432
         run: python -m flake8 backend/
+
   build_backend_and_push_to_docker_hub:
     if: github.ref == 'refs/heads/main'
     name: push backend image to hub.docker
     runs-on: ubuntu-latest
-    needs: backend_CI
+    needs: backend_test
     steps:
       - name: Check out the repo
         uses: actions/checkout@v3
@@ -63,6 +64,7 @@ jobs:
           context: ./backend/
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/foodgram_backend:latest
+
   build_frontend_and_push_to_docker_hub:
     if: github.ref == 'refs/heads/main'
     name: push frontend image to hub.docker
@@ -83,6 +85,7 @@ jobs:
           context: ./frontend/
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/foodgram_frontend:latest
+
   build_nginx_and_push_to_docker_hub:
     if: github.ref == 'refs/heads/main'
     name: push nginx image to hub.docker
@@ -103,6 +106,7 @@ jobs:
           context: ./infra/
           push: true
           tags: ${{ secrets.DOCKER_NICKNAME }}/kittygram_gateway:latest
+
   CD:
     runs-on: ubuntu-latest
     needs:
