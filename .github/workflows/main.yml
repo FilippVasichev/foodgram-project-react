@@ -46,7 +46,7 @@ jobs:
     if: github.ref == 'refs/heads/main'
     name: push backend image to hub.docker
     runs-on: ubuntu-latest
-    needs: backend_flake8
+    needs: backend_CI
     steps:
       - name: Check out the repo
         uses: actions/checkout@v3
