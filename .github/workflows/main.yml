@@ -104,7 +104,7 @@ jobs:
           push: true
           tags: ${{ secrets.DOCKER_NICKNAME }}/kittygram_gateway:latest
 
-    CD:
+    deploy:
       runs-on: ubuntu-latest
       needs:
         - build_backend_and_push_to_docker_hub
