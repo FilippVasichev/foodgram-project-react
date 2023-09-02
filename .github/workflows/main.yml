@@ -68,6 +68,7 @@ jobs:
   build_frontend_and_push_to_docker_hub:
     if: github.ref == 'refs/heads/main'
     name: push frontend image to hub.docker
+    needs: backend_test
     runs-on: ubuntu-latest
     steps:
       - name: Check out the repo
@@ -89,6 +90,7 @@ jobs:
   build_nginx_and_push_to_docker_hub:
     if: github.ref == 'refs/heads/main'
     name: push nginx image to hub.docker
+    needs: backend_test
     runs-on: ubuntu-latest
     steps:
       - name: Check out the repo
