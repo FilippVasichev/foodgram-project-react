@@ -1,7 +1,7 @@
 
 ![foodgram workflow](https://github.com/FilippVasichev/foodgram-project-react/actions/workflows/main.yml/badge.svg)
 ![aciktrasher@gmail.com](https://img.shields.io/badge/Gmail-EA4335.svg?style=for-the-badge&logo=Gmail&logoColor=white)
-![@zionweeds](https://img.shields.io/badge/Telegram-26A5E4.svg?style=for-the-badge&logo=Telegram&logoColor=white)
+![@zionweeds](https://img.shields.io/badge/Telegram-26A5E4.svg?style=for-the-badge&logo=@zionweeds&logoColor=white)
 
 ## **Описание проекта Foodgram:** 
 
@@ -12,16 +12,6 @@ Foodgram - REST API проект написанный на DRF
 авторов. Пользователям сайта также доступен сервис «Список покупок».
 Он позволит создавать список продуктов, которые нужно купить для
 приготовления выбранных блюд.
-
-## Как запустить проект на внутреннем интерфейсе: 
-
- 
-
-**Клонировать репозиторий с GitHub и перейти в него в командной строке:** 
-
-``` 
-git clone git@github.com:FilippVasichev/infra_sprint1.git 
-```
 
 <details>
   <summary>Запуск бэкенда проекта</summary>
