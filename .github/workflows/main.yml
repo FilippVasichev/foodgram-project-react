@@ -44,7 +44,7 @@ jobs:
         run: python -m flake8 backend/
 
   build_backend_and_push_to_docker_hub:
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/master'
     name: push backend image to hub.docker
     runs-on: ubuntu-latest
     needs: backend_test
@@ -66,9 +66,8 @@ jobs:
           tags: ${{ secrets.DOCKER_USERNAME }}/foodgram_backend:latest
 
   build_frontend_and_push_to_docker_hub:
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/master'
     name: push frontend image to hub.docker
-    needs: backend_test
     runs-on: ubuntu-latest
     steps:
       - name: Check out the repo
@@ -88,9 +87,8 @@ jobs:
           tags: ${{ secrets.DOCKER_USERNAME }}/foodgram_frontend:latest
 
   build_nginx_and_push_to_docker_hub:
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/master'
     name: push nginx image to hub.docker
-    needs: backend_test
     runs-on: ubuntu-latest
     steps:
       - name: Check out the repo
