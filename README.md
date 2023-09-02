@@ -1,7 +1,5 @@
 
 ![foodgram workflow](https://github.com/FilippVasichev/foodgram-project-react/actions/workflows/main.yml/badge.svg)
-![aciktrasher@gmail.com](https://img.shields.io/badge/Gmail-EA4335.svg?style=for-the-badge&logo=Gmail&logoColor=white)
-![@zionweeds](https://img.shields.io/badge/Telegram-26A5E4.svg?style=for-the-badge&logo=@zionweeds&logoColor=white)
 
 ## **Описание проекта Foodgram:** 
 
