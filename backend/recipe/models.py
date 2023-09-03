@@ -13,7 +13,7 @@ class Tag(models.Model):
         max_length=constants.RECIPE_NAME_MAX_LENGTH,
     )
     color = ColorField('Цвет тэга')
-    slug = models.SlugField(unique=True)
+    slug = models.SlugField('Слаг', unique=True)
 
     class Meta:
         verbose_name = 'Тэг'
@@ -147,6 +147,7 @@ class IngredientQuantity(models.Model):
         related_name='ingredient_recipe'
     )
     amount = models.PositiveSmallIntegerField(
+        verbose_name='Количество',
         validators=(
             MinValueValidator(
                 constants.MIN_INGREDIENT_AMOUNT,
@@ -166,10 +167,12 @@ class IngredientQuantity(models.Model):
 class RecipeTag(models.Model):
     recipe = models.ForeignKey(
         Recipe,
+        verbose_name='Рецепт',
         on_delete=models.CASCADE,
     )
     tag = models.ForeignKey(
         Tag,
+        verbose_name='Тэг',
         on_delete=models.CASCADE,
         related_name='tag'
     )
@@ -181,13 +184,13 @@ class RecipeTag(models.Model):
 class AbstractUsersRecipe(models.Model):
     user = models.ForeignKey(
         User,
-        on_delete=models.CASCADE,
         verbose_name='Пользователь',
+        on_delete=models.CASCADE,
     )
     recipe = models.ForeignKey(
         Recipe,
-        on_delete=models.CASCADE,
         verbose_name='Рецепт',
+        on_delete=models.CASCADE,
     )
 
     class Meta:
