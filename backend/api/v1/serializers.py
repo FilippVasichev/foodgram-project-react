@@ -107,8 +107,6 @@ class RecipeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Recipe
         read_only_fields = (
-            'is_favorited',
-            'is_in_shopping_cart',
             'author',
             'tags',
             'image',

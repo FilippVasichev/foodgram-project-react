@@ -73,9 +73,6 @@ class TagViewSet(ModelViewSet):
 
 
 class RecipeViewSet(ModelViewSet):
-    """
-    добавить status=status.HTTP
-    """
     permission_classes = (AuthorOrReadOnly,)
     http_method_names = ['get', 'patch', 'delete', 'post']
     filter_backends = [DjangoFilterBackend]
