@@ -2,7 +2,7 @@
 ![foodgram workflow](https://github.com/FilippVasichev/foodgram-project-react/actions/workflows/main.yml/badge.svg)
 
 > сайт: https://kittygram420.ddns.net 
-> 
+
 
 
 ## **Описание проекта Foodgram:** 
@@ -59,6 +59,11 @@ python -c 'from django.core.management.utils import get_random_secret_key; print
 **Выполнить миграции:**
 ``` 
 python manage.py migrate 
+``` 
+
+**Выполнить импорт ингредиентов:**
+``` 
+python manage.py import 
 ``` 
 
 **Запустить проект:** 
@@ -149,8 +154,11 @@ python manage.py runserver
 + Django REST framework: 3.12.4
 + djoser: 2.2.0
 
-# Автор 
 
+## спецификация OpenAPI
+https://kittygram420.ddns.net/api/docs/
+
+# Автор
 + FilippVasichev
 + ![GitHub](https://img.shields.io/badge/GitHub-FilippVasichev-brightgreen)
 + ![Gmail](https://img.shields.io/badge/Gmail-aciktrasher@gmail.com-red)
