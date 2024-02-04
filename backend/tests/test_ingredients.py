@@ -1,7 +1,11 @@
 import pytest
+
 from django.urls import reverse
+
 from http import HTTPStatus
+
 from recipe.models import Ingredient
+
 from tests.check_response_fields import check_fields
 
 
@@ -47,7 +51,11 @@ class TestIngredientsAPI:
             'name': ingredient_1.name,
             'measurement_unit': ingredient_1.measurement_unit,
         }
-        check_fields(ingredient_fields, response_json[0], self.ingredients_urls)
+        check_fields(
+            ingredient_fields,
+            response_json[0],
+            self.ingredients_urls
+        )
 
     def test_access_not_authenticated_ingredients_detail(
             self,

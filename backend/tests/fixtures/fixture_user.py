@@ -5,6 +5,7 @@ import pytest
 def password():
     return 'securepassword'
 
+
 @pytest.fixture
 def user(django_user_model, password):
     return django_user_model.object.create_user(
@@ -15,11 +16,13 @@ def user(django_user_model, password):
         password=password,
     )
 
+
 @pytest.fixture
 def user_token(user):
     from rest_framework.authtoken.models import Token
     token, _ = Token.objects.get_or_create(user=user)
     return token.key
+
 
 @pytest.fixture
 def user_client(user, token):

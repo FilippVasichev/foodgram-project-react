@@ -1,5 +1,6 @@
+from recipe.models import Ingredient, Tag
+
 import pytest
-from recipe.models import Tag, Ingredient
 
 
 @pytest.fixture
@@ -10,6 +11,7 @@ def tag_1():
         color='#E26C2D'
     )
 
+
 @pytest.fixture
 def tag_2():
     return Tag.objects.create(
@@ -18,12 +20,14 @@ def tag_2():
         color='#FF5733'
     )
 
+
 @pytest.fixture
 def ingredient_1():
     return Ingredient.objects.create(
         name='Ingredient1',
         measurement_unit='unit1',
     )
+
 
 @pytest.fixture
 def ingredient_2():
